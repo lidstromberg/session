@@ -1,0 +1,12 @@
+################################
+# You will need to create cert/keys in this directory (apply a password when prompted)
+#  ssh-keygen -t rsa -b 4096 -f jwt.key
+#  openssl rsa -in jwt.key -pubout -outform PEM -pubout -out jwt.key.pub
+################################
+
+################################
+# SESSION
+################################
+export JWT_ISSUER="{{DOMAINNAME}}"
+export JWT_EXTMIN="15"
+export JWT_APPROLEDELIM=":"
