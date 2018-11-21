@@ -315,7 +315,7 @@ func Test_DeleteAppClaim(t *testing.T) {
 
 	shdr1, err = sm1.GetJwtClaimElement(ctx, sess, "testapp1.editor")
 
-	if err != nil {
+	if err != nil && err != ErrClaimElementNotExist {
 		t.Fatal(err)
 	}
 

@@ -12,4 +12,6 @@ var (
 	ErrLoginSessionNotCreated = errors.New("could not create a login session")
 	//ErrJwtInvalidSession error message
 	ErrJwtInvalidSession = errors.New("session is no longer valid, please login")
+	//ErrClaimElementNotExist error message
+	ErrClaimElementNotExist = errors.New("the claim element does not exist")
 )

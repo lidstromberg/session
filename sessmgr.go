@@ -294,7 +294,12 @@ func (sessMgr *SessMgr) GetJwtClaimElement(ctx context.Context, sessionID, eleme
 	}
 
 	//get the claim element
-	clm := signer.Claims.(jwt.MapClaims)[element]
+	clm, ok := signer.Claims.(jwt.MapClaims)[element]
+
+	//if it doesn't exist then return error
+	if !ok {
+		return nil, ErrClaimElementNotExist
+	}
 
 	if EnvDebugOn {
 		lblog.LogEvent("SessMgr", "GetJwtClaimElement", "info", "end")
