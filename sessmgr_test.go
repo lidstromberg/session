@@ -42,17 +42,35 @@ func Test_NewSessMgr(t *testing.T) {
 		t.Fatal("session manager failed to create")
 	}
 }
-func Test_NewSession(t *testing.T) {
+func Test_NewLoginCandidate(t *testing.T) {
 	ctx := context.Background()
 
 	sm1, err := createNewSess(ctx)
-
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	sess, err := sm1.NewSession(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	lgid, err := sm1.SaveLoginCandidate(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	t.Logf("LoginID : %s", lgid)
+}
+func Test_NewSession(t *testing.T) {
+	ctx := context.Background()
+
+	sm1, err := createNewSess(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	lgid, err := sm1.SaveLoginCandidate(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	sess, err := sm1.NewSession(ctx, lgid)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,13 +85,16 @@ func Test_CheckUserRole(t *testing.T) {
 	ctx := context.Background()
 
 	sm1, err := createNewSess(ctx)
-
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	sess, err := sm1.NewSession(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	lgid, err := sm1.SaveLoginCandidate(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	sess, err := sm1.NewSession(ctx, lgid)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,13 +127,16 @@ func Test_IsValid(t *testing.T) {
 	ctx := context.Background()
 
 	sm1, err := createNewSess(ctx)
-
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	sess, err := sm1.NewSession(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	lgid, err := sm1.SaveLoginCandidate(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	sess, err := sm1.NewSession(ctx, lgid)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -137,13 +161,16 @@ func Test_GetSessionHeader(t *testing.T) {
 	ctx := context.Background()
 
 	sm1, err := createNewSess(ctx)
-
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	sess, err := sm1.NewSession(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	lgid, err := sm1.SaveLoginCandidate(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	sess, err := sm1.NewSession(ctx, lgid)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -155,7 +182,6 @@ func Test_GetSessionHeader(t *testing.T) {
 	t.Logf("Session string (jwt): %s", sess)
 
 	shdr1, err := sm1.GetJwtClaim(ctx, sess)
-
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -172,13 +198,16 @@ func Test_RefreshSession(t *testing.T) {
 	ctx := context.Background()
 
 	sm1, err := createNewSess(ctx)
-
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	sess, err := sm1.NewSession(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	lgid, err := sm1.SaveLoginCandidate(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	sess, err := sm1.NewSession(ctx, lgid)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -233,13 +262,16 @@ func Test_SetAppClaim(t *testing.T) {
 	ctx := context.Background()
 
 	sm1, err := createNewSess(ctx)
-
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	sess, err := sm1.NewSession(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	lgid, err := sm1.SaveLoginCandidate(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	sess, err := sm1.NewSession(ctx, lgid)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -271,13 +303,16 @@ func Test_DeleteAppClaim(t *testing.T) {
 	ctx := context.Background()
 
 	sm1, err := createNewSess(ctx)
-
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	sess, err := sm1.NewSession(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	lgid, err := sm1.SaveLoginCandidate(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	sess, err := sm1.NewSession(ctx, lgid)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -329,13 +364,16 @@ func Test_UpdateAppClaim(t *testing.T) {
 	ctx := context.Background()
 
 	sm1, err := createNewSess(ctx)
-
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	sess, err := sm1.NewSession(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	lgid, err := sm1.SaveLoginCandidate(ctx, "dummyUser1", "session@sessiontest.com", "testapp1:testapp2")
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	sess, err := sm1.NewSession(ctx, lgid)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -345,14 +383,12 @@ func Test_UpdateAppClaim(t *testing.T) {
 	}
 
 	sess, err = sm1.SetAppClaim(ctx, sess, "testapp1.editor", "ready-writey")
-
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	//now see if the claim was set correctly in the jwt
 	shdr1, err := sm1.GetJwtClaimElement(ctx, sess, "testapp1.editor")
-
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -372,14 +408,12 @@ func Test_UpdateAppClaim(t *testing.T) {
 
 	//now update the claim
 	sess, err = sm1.SetAppClaim(ctx, sess, "testapp1.editor", "ready")
-
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	//now see if the claim was updated correctly in the jwt
 	shdr1, err = sm1.GetJwtClaimElement(ctx, sess, "testapp1.editor")
-
 	if err != nil {
 		t.Fatal(err)
 	}

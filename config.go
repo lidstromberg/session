@@ -13,6 +13,8 @@ import (
 var (
 	//EnvDebugOn controls verbose logging
 	EnvDebugOn bool
+	//EnvClientPool is the size of the client pool
+	EnvClientPool int
 )
 
 const (
@@ -55,6 +57,22 @@ func preflight(ctx context.Context, bc lbcf.ConfigSetting) {
 		log.Fatal("Could not parse environment variable EnvSessAppRoleDelim")
 	}
 
+	if bc.GetConfigValue(ctx, "EnvSessGcpProject") == "" {
+		log.Fatal("Could not parse environment variable EnvSessGcpProject")
+	}
+
+	if bc.GetConfigValue(ctx, "EnvSessClientPool") == "" {
+		log.Fatal("Could not parse environment variable EnvSessClientPool")
+	}
+
+	if bc.GetConfigValue(ctx, "EnvSessDsNamespace") == "" {
+		log.Fatal("Could not parse environment variable EnvSessDsNamespace")
+	}
+
+	if bc.GetConfigValue(ctx, "EnvSessDsLoginKind") == "" {
+		log.Fatal("Could not parse environment variable EnvSessDsLoginKind")
+	}
+
 	//set the debug value
 	constlog, err := strconv.ParseBool(bc.GetConfigValue(ctx, "EnvDebugOn"))
 
@@ -63,6 +81,15 @@ func preflight(ctx context.Context, bc lbcf.ConfigSetting) {
 	}
 
 	EnvDebugOn = constlog
+
+	//set the poolsize
+	pl, err := strconv.ParseInt(bc.GetConfigValue(ctx, "EnvSessClientPool"), 10, 64)
+
+	if err != nil {
+		log.Fatal("Could not parse environment variable EnvSessClientPool")
+	}
+
+	EnvClientPool = int(pl)
 
 	log.Println("..Finished Session preflight.")
 }
@@ -79,6 +106,14 @@ func preflightConfigLoader() map[string]string {
 	cfm["EnvSessExtensionMin"] = os.Getenv("JWT_EXTMIN")
 	//EnvSessAppRoleDelim is the delimiter character used when joining the user app roles in the jwt
 	cfm["EnvSessAppRoleDelim"] = os.Getenv("JWT_APPROLEDELIM")
+	//EnvSessGcpProject is the cloud project to target
+	cfm["EnvSessGcpProject"] = os.Getenv("JWT_GCP_PROJECT")
+	//EnvSessClientPool is the client poolsize
+	cfm["EnvSessClientPool"] = os.Getenv("JWT_CLIPOOL")
+	//EnvSessDsNamespace is the datastore namespace used for session
+	cfm["EnvSessDsNamespace"] = os.Getenv("JWT_NAMESP")
+	//EnvSessDsLoginKind is the login entity
+	cfm["EnvSessDsLoginKind"] = os.Getenv("JWT_KD_LOGIN")
 
 	if cfm["EnvDebugOn"] == "" {
 		log.Fatal("Could not parse environment variable EnvDebugOn")
@@ -94,6 +129,22 @@ func preflightConfigLoader() map[string]string {
 
 	if cfm["EnvSessAppRoleDelim"] == "" {
 		log.Fatal("Could not parse environment variable EnvSessAppRoleDelim")
+	}
+
+	if cfm["EnvSessGcpProject"] == "" {
+		log.Fatal("Could not parse environment variable EnvSessGcpProject")
+	}
+
+	if cfm["EnvSessClientPool"] == "" {
+		log.Fatal("Could not parse environment variable EnvSessClientPool")
+	}
+
+	if cfm["EnvSessDsNamespace"] == "" {
+		log.Fatal("Could not parse environment variable EnvSessDsNamespace")
+	}
+
+	if cfm["EnvSessDsLoginKind"] == "" {
+		log.Fatal("Could not parse environment variable EnvSessDsLoginKind")
 	}
 
 	return cfm

@@ -5,8 +5,17 @@
 ################################
 
 ################################
+# GCP CREDENTIALS
+################################
+export GOOGLE_APPLICATION_CREDENTIALS="/PATH/TO/GCPCREDENTIALS.JSON"
+
+################################
 # SESSION
 ################################
 export JWT_ISSUER="{{DOMAINNAME}}"
 export JWT_EXTMIN="15"
 export JWT_APPROLEDELIM=":"
+export JWT_GCP_PROJECT="{{PROJECTNAME}}"
+export JWT_CLIPOOL="5"
+export JWT_NAMESP="session"
+export JWT_KD_LOGIN="login"

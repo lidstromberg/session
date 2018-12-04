@@ -14,4 +14,8 @@ var (
 	ErrJwtInvalidSession = errors.New("session is no longer valid, please login")
 	//ErrClaimElementNotExist error message
 	ErrClaimElementNotExist = errors.New("the claim element does not exist")
+	//ErrLcNotExist error message
+	ErrLcNotExist = errors.New("the login candidate does not exist")
+	//ErrLcExpired error message
+	ErrLcExpired = errors.New("the login candidate has expired")
 )

@@ -39,12 +39,10 @@ You will also need to export (linux/macOS) or create (Windows) some environment 
 export JWT_ISSUER="{{DOMAINNAME}}"
 export JWT_EXTMIN="15"
 export JWT_APPROLEDELIM=":"
-
-################################
-# GCP DETAILS
-################################
-export LBAUTH_GCP_PROJECT="{{PROJECTNAME}}"
-export LBAUTH_GCP_BUCKET="{{BUCKETNAME}}"
+export JWT_GCP_PROJECT="{{PROJECTNAME}}"
+export JWT_CLIPOOL="5"
+export JWT_NAMESP="session"
+export JWT_KD_LOGIN="login"
 ```
 ```sh
 ################################
@@ -62,17 +60,12 @@ export LB_DEBUGON="false"
 ```
 
 #### Private/Public Certs for JWT
-If you want to run the authcore tests or the example implementations, then you will also require RSA certs for the [jwt-go] tokens. The following will generate them (assuming you have openssl installed). You should place a password on the private key when prompted.
-
-```sh
-$ ssh-keygen -t rsa -b 4096 -f jwt.key
-$ openssl rsa -in jwt.key -pubout -outform PEM -pubout -out jwt.key.pub
-```
+If you want to run the authcore tests or the example implementations, then you will also require RSA certs for the [jwt-go] tokens. See [keypair] for details on how these are used.
 
 #### Google Cloud Platform Requirements
 If you intend to use GCP datastore as your backend, then you will require:
 * A GCP project
-* A GCP storage bucket (private) to store the jwt private/public keys (in the root of the bucket)
+* A GCP storage bucket (private) to store the jwt private/public keys (in the root of the bucket). See [keypair] for further details.
 * Your GOOGLE_APPLICATION_CREDENTIALS json credentials key should be created with the following IAM scopes: 'Storage Object Viewer' and 'Storage Object Creator', or 'Storage Object Admin'.
 
 
