@@ -10,10 +10,10 @@ import (
 
 	"golang.org/x/net/context"
 
-	utils "github.com/lidstromberg/auth/utils"
 	lbcf "github.com/lidstromberg/config"
 	kp "github.com/lidstromberg/keypair"
 	lblog "github.com/lidstromberg/log"
+	utils "github.com/lidstromberg/utils"
 
 	jwt "github.com/dgrijalva/jwt-go"
 
