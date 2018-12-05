@@ -2,7 +2,6 @@ package session
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"sync"
@@ -13,21 +12,16 @@ import (
 	lbcf "github.com/lidstromberg/config"
 	kp "github.com/lidstromberg/keypair"
 	lblog "github.com/lidstromberg/log"
-	utils "github.com/lidstromberg/utils"
 
 	jwt "github.com/dgrijalva/jwt-go"
-
-	"cloud.google.com/go/datastore"
-	"google.golang.org/api/option"
 )
 
 //SessMgr handles jwts
 type SessMgr struct {
-	CmDsClient *datastore.Client
-	Kp         *kp.KeyPair
-	Bc         lbcf.ConfigSetting
-	extendVal  int
-	issuer     string
+	Kp        *kp.KeyPair
+	Bc        lbcf.ConfigSetting
+	extendVal int
+	issuer    string
 }
 
 //SessProvider defines the public operations of a session manager
@@ -96,18 +90,11 @@ func NewSessMgr(ctx context.Context, bc lbcf.ConfigSetting, kpr *kp.KeyPair) (*S
 		return nil, err
 	}
 
-	datastoreClient, err := datastore.NewClient(ctx, bc.GetConfigValue(ctx, "EnvSessGcpProject"), option.WithGRPCConnectionPool(EnvClientPool))
-
-	if err != nil {
-		return nil, err
-	}
-
 	sm1 := &SessMgr{
-		CmDsClient: datastoreClient,
-		Kp:         kpr,
-		Bc:         bc,
-		extendVal:  ev,
-		issuer:     bc.GetConfigValue(ctx, "EnvSessTokenIssuer"),
+		Kp:        kpr,
+		Bc:        bc,
+		extendVal: ev,
+		issuer:    bc.GetConfigValue(ctx, "EnvSessTokenIssuer"),
 	}
 
 	if EnvDebugOn {
@@ -118,18 +105,12 @@ func NewSessMgr(ctx context.Context, bc lbcf.ConfigSetting, kpr *kp.KeyPair) (*S
 }
 
 //NewSession returns a signed jwt as a string
-func (sessMgr *SessMgr) NewSession(ctx context.Context, loginID string) (string, error) {
+func (sessMgr *SessMgr) NewSession(ctx context.Context, shdr map[string]interface{}) (string, error) {
 	if EnvDebugOn {
 		lblog.LogEvent("SessMgr", "NewSession", "info", "start")
 	}
 
-	//create a map of the values
-	uky, err := sessMgr.ActivateSessionMap(ctx, loginID)
-	if err != nil {
-		return "", err
-	}
-
-	tokenstring, err := sessMgr.issueJwt(ctx, uky)
+	tokenstring, err := sessMgr.issueJwt(ctx, shdr)
 	if err != nil {
 		return "", err
 	}
@@ -139,149 +120,6 @@ func (sessMgr *SessMgr) NewSession(ctx context.Context, loginID string) (string,
 	}
 
 	return tokenstring, nil
-}
-
-//ActivateSessionMap sets the MapClaims custom map elements
-func (sessMgr *SessMgr) ActivateSessionMap(ctx context.Context, loginID string) (map[string]interface{}, error) {
-	shdr := make(map[string]interface{})
-
-	currentTime := time.Now()
-
-	lc, err := sessMgr.GetLoginCandidate(ctx, loginID)
-	if err != nil {
-		return nil, err
-	}
-
-	cd := *lc.CreatedDate
-	log.Print(*lc.CreatedDate)
-	if currentTime.Sub(cd) > (time.Minute * 5) {
-		return nil, ErrLcExpired
-	}
-
-	shdr[ConstJwtID] = lc.SessionID
-	shdr[ConstJwtRole] = lc.RoleToken
-	shdr[ConstJwtAccID] = lc.UserAccountID
-	shdr[ConstJwtEml] = lc.Email
-
-	//mark the record as active
-	lc.Activated = true
-	lc.ActivatedDate = &currentTime
-
-	//and save back
-	_, err = sessMgr.setLoginCandidate(ctx, lc)
-	if err != nil {
-		return nil, err
-	}
-
-	return shdr, nil
-}
-
-//setLoginCandidate writes a logincandidate to datastore
-func (sessMgr *SessMgr) setLoginCandidate(ctx context.Context, lc *LoginCandidate) (string, error) {
-	if EnvDebugOn {
-		lblog.LogEvent("SessMgr", "setLoginCandidate", "info", "start")
-	}
-
-	var key *datastore.Key
-
-	if lc.SessionID == "" {
-		key1, err := utils.NewDsKey(ctx, sessMgr.CmDsClient, sessMgr.Bc.GetConfigValue(ctx, "EnvSessDsNamespace"), sessMgr.Bc.GetConfigValue(ctx, "EnvSessDsLoginKind"))
-		if err != nil {
-			return "", err
-		}
-
-		key = key1
-		lc.SessionID = strconv.FormatInt(key.ID, 10)
-	} else {
-		id, err := strconv.ParseInt(lc.SessionID, 10, 64)
-		if err != nil {
-			return "", err
-		}
-
-		key1 := datastore.IDKey(sessMgr.Bc.GetConfigValue(ctx, "EnvSessDsLoginKind"), id, nil)
-		key1.Namespace = sessMgr.Bc.GetConfigValue(ctx, "EnvSessDsNamespace")
-
-		key = key1
-	}
-
-	tx, err := sessMgr.CmDsClient.NewTransaction(ctx)
-
-	if err != nil {
-		return "", err
-	}
-
-	if _, err := tx.Put(key, lc); err != nil {
-		tx.Rollback()
-		return "", err
-	}
-
-	if _, err = tx.Commit(); err != nil {
-		return "", err
-	}
-
-	if EnvDebugOn {
-		lblog.LogEvent("SessMgr", "setLoginCandidate", "info", "end")
-	}
-
-	return lc.SessionID, nil
-}
-
-//SaveLoginCandidate saves a login record
-func (sessMgr *SessMgr) SaveLoginCandidate(ctx context.Context, userID, email, roleTokenID string) (string, error) {
-	if EnvDebugOn {
-		lblog.LogEvent("SessMgr", "NewLogin", "info", "start")
-	}
-	currentTime := time.Now()
-	activatedTime := &time.Time{}
-
-	lc := &LoginCandidate{
-		UserAccountID: userID,
-		Email:         email,
-		RoleToken:     roleTokenID,
-		Activated:     false,
-		CreatedDate:   &currentTime,
-		ActivatedDate: activatedTime,
-	}
-
-	logid, err := sessMgr.setLoginCandidate(ctx, lc)
-	if err != nil {
-		return "", err
-	}
-
-	if EnvDebugOn {
-		lblog.LogEvent("SessMgr", "NewLogin", "info", "end")
-	}
-	return logid, nil
-}
-
-//GetLoginCandidate returns a login record
-func (sessMgr *SessMgr) GetLoginCandidate(ctx context.Context, loginID string) (*LoginCandidate, error) {
-	if EnvDebugOn {
-		lblog.LogEvent("SessMgr", "GetLoginCandidate", "info", "start")
-	}
-
-	id, err := strconv.ParseInt(loginID, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-
-	key := datastore.IDKey(sessMgr.Bc.GetConfigValue(ctx, "EnvSessDsLoginKind"), id, nil)
-	key.Namespace = sessMgr.Bc.GetConfigValue(ctx, "EnvSessDsNamespace")
-
-	var lc LoginCandidate
-
-	err = sessMgr.CmDsClient.Get(ctx, key, &lc)
-	if err != nil {
-		if err == datastore.ErrNoSuchEntity {
-			return nil, ErrLcNotExist
-		}
-		return nil, err
-	}
-
-	if EnvDebugOn {
-		lblog.LogEvent("SessMgr", "GetLoginCandidate", "info", "end")
-	}
-	return &lc, nil
 }
 
 //extractJwt converts a signed jwt string to a jwt token
@@ -460,19 +298,13 @@ func (sessMgr *SessMgr) IsSessionValid(ctx context.Context, sessionID string) (b
 	}
 
 	//extract action checks jwt validity
-	clm, err := sessMgr.GetJwtClaimElement(ctx, sessionID, ConstJwtID)
+	tk, err := sessMgr.extractJwt(sessionID)
 	if err != nil {
 		return false, err
 	}
 
-	//check that this is a valid session
-	lc, err := sessMgr.GetLoginCandidate(ctx, clm.(string))
-	if err != nil {
-		return false, err
-	}
-
-	if !lc.Activated {
-		return false, err
+	if !tk.Valid {
+		return false, ErrJwtInvalidSession
 	}
 
 	if EnvDebugOn {
