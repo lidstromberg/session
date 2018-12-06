@@ -18,15 +18,15 @@ import (
 
 //SessMgr handles jwts
 type SessMgr struct {
-	Kp        *kp.KeyPair
-	Bc        lbcf.ConfigSetting
+	kp        *kp.KeyPair
+	bc        lbcf.ConfigSetting
 	extendVal int
 	issuer    string
 }
 
 //SessProvider defines the public operations of a session manager
 type SessProvider interface {
-	NewSession(ctx context.Context, userID, email, roleTokenID string) (string, error)
+	NewSession(ctx context.Context, shdr map[string]interface{}) (string, error)
 	CheckUserRole(ctx context.Context, sessionID string, roleName string) (bool, error)
 	GetJwtClaim(ctx context.Context, sessionID string) (map[string]interface{}, error)
 	GetJwtClaimElement(ctx context.Context, sessionID, element string) (interface{}, error)
@@ -91,8 +91,8 @@ func NewSessMgr(ctx context.Context, bc lbcf.ConfigSetting, kpr *kp.KeyPair) (*S
 	}
 
 	sm1 := &SessMgr{
-		Kp:        kpr,
-		Bc:        bc,
+		kp:        kpr,
+		bc:        bc,
 		extendVal: ev,
 		issuer:    bc.GetConfigValue(ctx, "EnvSessTokenIssuer"),
 	}
@@ -133,7 +133,7 @@ func (sessMgr *SessMgr) extractJwt(sessionID string) (*jwt.Token, error) {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return sessMgr.Kp.GetPubKey(), nil
+		return sessMgr.kp.GetPubKey(), nil
 	})
 
 	if err != nil {
@@ -199,7 +199,7 @@ func (sessMgr *SessMgr) issueJwt(ctx context.Context, sesshdr map[string]interfa
 	signer := jwt.NewWithClaims(jwt.SigningMethodRS256, clms)
 
 	//sign the token
-	tokenString, err := signer.SignedString(sessMgr.Kp.GetPriKey())
+	tokenString, err := signer.SignedString(sessMgr.kp.GetPriKey())
 
 	if err != nil {
 		return "", err
@@ -229,7 +229,7 @@ func (sessMgr *SessMgr) CheckUserRole(ctx context.Context, sessionID string, rol
 	//add/update the appclaim
 	rle := signer.Claims.(jwt.MapClaims)[ConstJwtRole].(string)
 
-	if sessMgr.checkRoleToken(rle, roleName, sessMgr.Bc.GetConfigValue(ctx, "EnvSessAppRoleDelim")) {
+	if sessMgr.checkRoleToken(rle, roleName, sessMgr.bc.GetConfigValue(ctx, "EnvSessAppRoleDelim")) {
 		return true, nil
 	}
 
@@ -351,7 +351,7 @@ func (sessMgr *SessMgr) RefreshSession(ctx context.Context, sessionID string) <-
 		signer.Claims.(jwt.MapClaims)["nbf"] = now
 
 		//sign the string again
-		tokenString, err := signer.SignedString(sessMgr.Kp.GetPriKey())
+		tokenString, err := signer.SignedString(sessMgr.kp.GetPriKey())
 
 		//send back the errors if any occur
 		if err != nil {
@@ -399,7 +399,7 @@ func (sessMgr *SessMgr) SetAppClaim(ctx context.Context, sessionID string, appNa
 	signer.Claims.(jwt.MapClaims)[appName] = appClaim
 
 	//sign the string again
-	tokenString, err := signer.SignedString(sessMgr.Kp.GetPriKey())
+	tokenString, err := signer.SignedString(sessMgr.kp.GetPriKey())
 
 	if err != nil {
 		return "", err
@@ -429,7 +429,7 @@ func (sessMgr *SessMgr) DeleteAppClaim(ctx context.Context, sessionID string, ap
 	delete(signer.Claims.(jwt.MapClaims), appName)
 
 	//sign the string again
-	tokenString, err := signer.SignedString(sessMgr.Kp.GetPriKey())
+	tokenString, err := signer.SignedString(sessMgr.kp.GetPriKey())
 
 	if err != nil {
 		return "", err

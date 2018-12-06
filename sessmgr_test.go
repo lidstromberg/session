@@ -10,7 +10,7 @@ import (
 	context "golang.org/x/net/context"
 )
 
-func createNewSess(ctx context.Context) (*SessMgr, error) {
+func createNewSess(ctx context.Context) (SessProvider, error) {
 	bc := lbcf.NewConfig(ctx)
 
 	//create a keypair
