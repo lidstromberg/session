@@ -36,6 +36,7 @@ You will also need to export (linux/macOS) or create (Windows) some environment 
 ################################
 # SESSION
 ################################
+export JWT_DEBUGON="true"
 export JWT_ISSUER="{{DOMAINNAME}}"
 export JWT_EXTMIN="15"
 export JWT_APPROLEDELIM=":"
@@ -51,13 +52,6 @@ export JWT_KD_LOGIN="login"
 export GOOGLE_APPLICATION_CREDENTIALS="/PATH/TO/GCPCREDENTIALS.JSON"
 ```
 (See [Google Application Credentials])
-```sh
-################################
-# AUTH DEBUG FLAG
-# switch LB_DEBUGON to true to start verbose logging
-################################
-export LB_DEBUGON="false"
-```
 
 #### Private/Public Certs for JWT
 If you want to run the authcore tests or the example implementations, then you will also require RSA certs for the [jwt-go] tokens. See [keypair] for details on how these are used.

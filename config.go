@@ -74,7 +74,7 @@ func preflightConfigLoader() map[string]string {
 	cfm := make(map[string]string)
 
 	//EnvDebugOn is the debug setting
-	cfm["EnvDebugOn"] = os.Getenv("LB_DEBUGON")
+	cfm["EnvDebugOn"] = os.Getenv("JWT_DEBUGON")
 	//EnvSessTokenIssuer is the issuer name which is embedded in the jwt
 	cfm["EnvSessTokenIssuer"] = os.Getenv("JWT_ISSUER")
 	//EnvSessExtensionMin is the number of minutes by which a token is extended on each touch
