@@ -15,13 +15,11 @@ func createNewSess(ctx context.Context) (SessProvider, error) {
 
 	//create a keypair
 	kpr, err := kp.NewKeyPair(ctx, bc)
-
 	if err != nil {
 		return nil, err
 	}
 
-	sm1, err := NewSessMgr(ctx, bc, kpr)
-
+	sm1, err := NewMgr(ctx, bc, kpr)
 	if err != nil {
 		return nil, err
 	}
@@ -37,11 +35,10 @@ func createBaseMap() map[string]interface{} {
 
 	return shdr
 }
-func Test_NewSessMgr(t *testing.T) {
+func Test_NewMgr(t *testing.T) {
 	ctx := context.Background()
 
 	sm1, err := createNewSess(ctx)
-
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +88,6 @@ func Test_CheckUserRole(t *testing.T) {
 	}
 
 	result, err := sm1.CheckUserRole(ctx, sess, "testapp1")
-
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +97,6 @@ func Test_CheckUserRole(t *testing.T) {
 	}
 
 	result, err = sm1.CheckUserRole(ctx, sess, "testapp3")
-
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -132,7 +127,6 @@ func Test_IsValid(t *testing.T) {
 	t.Logf("Session string (jwt): %s", sess)
 
 	chk, err := sm1.IsSessionValid(ctx, sess)
-
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -209,6 +203,8 @@ func Test_RefreshSession(t *testing.T) {
 	defer cancel()
 
 	resultch := sm1.RefreshSession(ctx, sess)
+	defer DrainFn(resultch)
+
 	t.Log("Doing stuff..")
 
 	select {
@@ -256,7 +252,6 @@ func Test_SetAppClaim(t *testing.T) {
 	}
 
 	sess, err = sm1.SetAppClaim(ctx, sess, "testapp1.editor", "ready-writey")
-
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -293,14 +288,12 @@ func Test_DeleteAppClaim(t *testing.T) {
 	}
 
 	sess, err = sm1.SetAppClaim(ctx, sess, "testapp1.editor", "ready-writey")
-
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	//now see if the claim was set correctly in the jwt
 	shdr1, err := sm1.GetJwtClaimElement(ctx, sess, "testapp1.editor")
-
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -314,13 +307,11 @@ func Test_DeleteAppClaim(t *testing.T) {
 	}
 
 	sess, err = sm1.DeleteAppClaim(ctx, sess, "testapp1.editor")
-
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	shdr1, err = sm1.GetJwtClaimElement(ctx, sess, "testapp1.editor")
-
 	if err != nil && err != ErrClaimElementNotExist {
 		t.Fatal(err)
 	}

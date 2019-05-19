@@ -21,7 +21,7 @@ This utilises the following fine pieces of work:
 * [GCP]'s [Datastore Go client] and [Storage Go client]
  
 Also uses:
-* [lidstromberg] packages [log], [keypair] and [config]. Please note the configuration requirements for these packages also. The easiest way to ensure all of these things are configured, is to refer to the [auth] package itself.
+* [lidstromberg] packages [log], [keypair] and [config]. Please note that [log] and [config] do not require environment variables to be set, but [keypair] requires encryption keys to be set. Refer to the keypair package for further details. The easiest way to ensure all of these things are configured, is to refer to the [auth] package itself.
 
 ## Installation
 Install using go get.
@@ -36,13 +36,10 @@ You will also need to export (linux/macOS) or create (Windows) some environment 
 ################################
 # SESSION
 ################################
+export JWT_DEBUGON="false"
 export JWT_ISSUER="{{DOMAINNAME}}"
 export JWT_EXTMIN="15"
 export JWT_APPROLEDELIM=":"
-export JWT_GCP_PROJECT="{{PROJECTNAME}}"
-export JWT_CLIPOOL="5"
-export JWT_NAMESP="session"
-export JWT_KD_LOGIN="login"
 ```
 ```sh
 ################################
@@ -51,13 +48,6 @@ export JWT_KD_LOGIN="login"
 export GOOGLE_APPLICATION_CREDENTIALS="/PATH/TO/GCPCREDENTIALS.JSON"
 ```
 (See [Google Application Credentials])
-```sh
-################################
-# AUTH DEBUG FLAG
-# switch LB_DEBUGON to true to start verbose logging
-################################
-export LB_DEBUGON="false"
-```
 
 #### Private/Public Certs for JWT
 If you want to run the authcore tests or the example implementations, then you will also require RSA certs for the [jwt-go] tokens. See [keypair] for details on how these are used.
@@ -67,6 +57,22 @@ If you intend to use GCP datastore as your backend, then you will require:
 * A GCP project
 * A GCP storage bucket (private) to store the jwt private/public keys (in the root of the bucket). See [keypair] for further details.
 * Your GOOGLE_APPLICATION_CREDENTIALS json credentials key should be created with the following IAM scopes: 'Storage Object Viewer' and 'Storage Object Creator', or 'Storage Object Admin'.
+
+
+### Main Files
+| File | Purpose |
+| ------ | ------ |
+| sessmgr.go | Logic manager |
+| sessmgr_test.go | Tests |
+
+### Ancillary Files
+| File | Purpose |
+| ------ | ------ |
+| config.go | Boot package parameters, environment var collection |
+| entity.go | Package structs || errors.go | Package error definitions |
+| errors.go | Package error definitions |
+| env | Package environment variables for local/dev installation |
+| gogets | Statements for go-getting required packages |
 
 
    [Dave Grijalva]: <https://github.com/dgrijalva>

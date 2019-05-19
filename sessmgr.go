@@ -76,16 +76,15 @@ func PollFn(ctx context.Context, wg *sync.WaitGroup, sessid string, c <-chan int
 	return newsess
 }
 
-//NewSessMgr creates a new credential manager
-func NewSessMgr(ctx context.Context, bc lbcf.ConfigSetting, kpr *kp.KeyPair) (*SessMgr, error) {
+//NewMgr creates a new credential manager
+func NewMgr(ctx context.Context, bc lbcf.ConfigSetting, kpr *kp.KeyPair) (*SessMgr, error) {
 	preflight(ctx, bc)
 
 	if EnvDebugOn {
-		lblog.LogEvent("SessMgr", "NewSessMgr", "info", "start")
+		lblog.LogEvent("SessMgr", "NewMgr", "info", "start")
 	}
 
 	ev, err := strconv.Atoi(bc.GetConfigValue(ctx, "EnvSessExtensionMin"))
-
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +97,7 @@ func NewSessMgr(ctx context.Context, bc lbcf.ConfigSetting, kpr *kp.KeyPair) (*S
 	}
 
 	if EnvDebugOn {
-		lblog.LogEvent("SessMgr", "NewSessMgr", "info", "end")
+		lblog.LogEvent("SessMgr", "NewMgr", "info", "end")
 	}
 
 	return sm1, nil
@@ -135,7 +134,6 @@ func (sessMgr *SessMgr) extractJwt(sessionID string) (*jwt.Token, error) {
 
 		return sessMgr.kp.GetPubKey(), nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +198,6 @@ func (sessMgr *SessMgr) issueJwt(ctx context.Context, sesshdr map[string]interfa
 
 	//sign the token
 	tokenString, err := signer.SignedString(sessMgr.kp.GetPriKey())
-
 	if err != nil {
 		return "", err
 	}
@@ -221,7 +218,6 @@ func (sessMgr *SessMgr) CheckUserRole(ctx context.Context, sessionID string, rol
 
 	//extract the token
 	signer, err := sessMgr.extractJwt(sessionID)
-
 	if err != nil {
 		return false, err
 	}
@@ -248,7 +244,6 @@ func (sessMgr *SessMgr) GetJwtClaim(ctx context.Context, sessionID string) (map[
 
 	//extract the token
 	signer, err := sessMgr.extractJwt(sessionID)
-
 	if err != nil {
 		return nil, err
 	}
@@ -271,7 +266,6 @@ func (sessMgr *SessMgr) GetJwtClaimElement(ctx context.Context, sessionID, eleme
 
 	//extract the token
 	signer, err := sessMgr.extractJwt(sessionID)
-
 	if err != nil {
 		return nil, err
 	}
@@ -390,7 +384,6 @@ func (sessMgr *SessMgr) SetAppClaim(ctx context.Context, sessionID string, appNa
 
 	//extract the token
 	signer, err := sessMgr.extractJwt(sessionID)
-
 	if err != nil {
 		return "", err
 	}
@@ -400,7 +393,6 @@ func (sessMgr *SessMgr) SetAppClaim(ctx context.Context, sessionID string, appNa
 
 	//sign the string again
 	tokenString, err := signer.SignedString(sessMgr.kp.GetPriKey())
-
 	if err != nil {
 		return "", err
 	}
@@ -420,7 +412,6 @@ func (sessMgr *SessMgr) DeleteAppClaim(ctx context.Context, sessionID string, ap
 
 	//extract the token
 	signer, err := sessMgr.extractJwt(sessionID)
-
 	if err != nil {
 		return "", err
 	}
@@ -430,7 +421,6 @@ func (sessMgr *SessMgr) DeleteAppClaim(ctx context.Context, sessionID string, ap
 
 	//sign the string again
 	tokenString, err := signer.SignedString(sessMgr.kp.GetPriKey())
-
 	if err != nil {
 		return "", err
 	}

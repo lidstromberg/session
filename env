@@ -1,11 +1,7 @@
 ################################
-# GCP CREDENTIALS
-################################
-export GOOGLE_APPLICATION_CREDENTIALS="/PATH/TO/GCPCREDENTIALS.JSON"
-
-################################
 # SESSION
 ################################
+export JWT_DEBUGON='true'
 export JWT_ISSUER="{{DOMAINNAME}}"
 export JWT_EXTMIN="15"
 export JWT_APPROLEDELIM=":"
