@@ -1,7 +1,11 @@
 ################################
 # SESSION
 ################################
+<<<<<<< HEAD
 export JWT_DEBUGON='true'
+=======
+export JWT_DEBUGON="true"
+>>>>>>> 40a992b0cebae52d18b9de56ef447c871e983795
 export JWT_ISSUER="{{DOMAINNAME}}"
 export JWT_EXTMIN="15"
 export JWT_APPROLEDELIM=":"
