@@ -318,7 +318,7 @@ func (sessMgr *SessMgr) RefreshSession(ctx context.Context, sessionID string) <-
 	var wg sync.WaitGroup
 
 	//create the channels
-	result := make(chan interface{})
+	result := make(chan interface{}, 1)
 
 	//mark the time
 	exp := time.Now().Add(time.Minute * time.Duration(sessMgr.extendVal)).Unix()
