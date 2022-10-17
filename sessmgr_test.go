@@ -7,7 +7,7 @@ import (
 	lbcf "github.com/lidstromberg/config"
 	kp "github.com/lidstromberg/keypair"
 
-	context "golang.org/x/net/context"
+	"golang.org/x/net/context"
 )
 
 func createNewSess(ctx context.Context) (SessProvider, error) {

@@ -13,7 +13,7 @@ import (
 	kp "github.com/lidstromberg/keypair"
 	lblog "github.com/lidstromberg/log"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 //SessMgr handles jwts
@@ -129,7 +129,7 @@ func (sessMgr *SessMgr) extractJwt(sessionID string) (*jwt.Token, error) {
 
 	token, err := jwt.Parse(sessionID, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
 		return sessMgr.kp.GetPubKey(), nil

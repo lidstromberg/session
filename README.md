@@ -16,7 +16,7 @@ See [examples] for a http/appengine implementations which uses session and auth.
 
 ## Dependencies and services
 This utilises the following fine pieces of work:
-* [Dave Grijalva]'s [jwt-go] Go implementation of JSON Web Tokens (JWT)
+* [jwt] Go implementation of JSON Web Tokens (JWT)
 * [Segment]'s [ksuid] - K-Sortable Globally Unique IDs
 * [GCP]'s [Datastore Go client] and [Storage Go client]
  
@@ -60,23 +60,22 @@ If you intend to use GCP datastore as your backend, then you will require:
 
 
 ### Main Files
-| File | Purpose |
-| ------ | ------ |
-| sessmgr.go | Logic manager |
-| sessmgr_test.go | Tests |
+| File            | Purpose       |
+|-----------------|---------------|
+| sessmgr.go      | Logic manager |
+| sessmgr_test.go | Tests         |
 
 ### Ancillary Files
-| File | Purpose |
-| ------ | ------ |
-| config.go | Boot package parameters, environment var collection |
-| entity.go | Package structs || errors.go | Package error definitions |
-| errors.go | Package error definitions |
-| env | Package environment variables for local/dev installation |
-| gogets | Statements for go-getting required packages |
+| File      | Purpose                                                  |
+|-----------|----------------------------------------------------------|
+| config.go | Boot package parameters, environment var collection      |
+| entity.go | Package structs                                          || errors.go | Package error definitions |
+| errors.go | Package error definitions                                |
+| env       | Package environment variables for local/dev installation |
+| gogets    | Statements for go-getting required packages              |
 
 
-   [Dave Grijalva]: <https://github.com/dgrijalva>
-   [jwt-go]: <https://github.com/dgrijalva/jwt-go>
+   [jwt]: <https://github.com/golang-jwt/jwt>
    [Segment]: <https://github.com/segmentio>
    [ksuid]: <https://github.com/segmentio/ksuid>
    [GCP]: <https://cloud.google.com/>

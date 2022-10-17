@@ -13,15 +13,9 @@ import (
 var (
 	//EnvDebugOn controls verbose logging
 	EnvDebugOn bool
-	//EnvClientPool is the size of the client pool
-	EnvClientPool int
 )
 
 const (
-	//ConstJwtSessionHeaderElementTag session header element tag
-	ConstJwtSessionHeaderElementTag = "sessionheader"
-	//ConstJwtAppRoleElementTag role token element tag
-	ConstJwtAppRoleElementTag = "roletokenid"
 	//ConstJwtID id (session) element
 	ConstJwtID = "jti"
 	//ConstJwtRole roletoken id
