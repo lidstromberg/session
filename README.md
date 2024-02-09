@@ -1,6 +1,6 @@
 # Session - Go JWT wrapper
 
-A Go JWT wrapper which bundles common operations for JWT tokens. Makes pervasive use of [Dave Grijalva]'s [jwt-go] Go implementation of JSON Web Tokens (JWT).
+A Go JWT wrapper which bundles common operations for JWT tokens. Makes pervasive use of the [jwt] Go implementation of JSON Web Tokens (JWT).
 
 ## What?
 This provides functionality to create custom map claims, new JWTs, validity checks, refresh JWTs and check JWT content. It was built and intended for use with [auth] but can be used as a standalone.
@@ -50,7 +50,7 @@ export GOOGLE_APPLICATION_CREDENTIALS="/PATH/TO/GCPCREDENTIALS.JSON"
 (See [Google Application Credentials])
 
 #### Private/Public Certs for JWT
-If you want to run the authcore tests or the example implementations, then you will also require RSA certs for the [jwt-go] tokens. See [keypair] for details on how these are used.
+If you want to run the authcore tests or the example implementations, then you will also require RSA certs for the [jwt] tokens. See [keypair] for details on how these are used.
 
 #### Google Cloud Platform Requirements
 If you intend to use GCP datastore as your backend, then you will require:
